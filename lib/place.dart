@@ -14,11 +14,13 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flip_card/flip_card.dart';
 import 'scanner.dart';
 
+// ignore: unused_element
 CameraPosition _initialPosition =
     CameraPosition(target: LatLng(6.467861, 100.507639));
 Completer<GoogleMapController> _controller = Completer();
 GlobalKey<FlipCardState> cardKey = GlobalKey<FlipCardState>();
 
+// ignore: unused_element
 void _onMapCreated(GoogleMapController controller) {
   _controller.complete(controller);
 }
@@ -297,7 +299,7 @@ All the functions used in this page
         showBook = true;
       });
     } else {
-      //TODO
+      //TODO Forgot what to do here, but the app works fine so far..
 
     }
   }
@@ -379,7 +381,6 @@ All the functions used in this page
         isSeatEnabled = true;
       });
 //debug logs..
-      print('This is how many places left in $chosenday $freeSeats');
     } else {
       setState(() {
         showPlacesLeft = false;
@@ -389,9 +390,7 @@ All the functions used in this page
     }
   }
 
-//! book a slot for the users
-
-  Future updatedata() async {
+  Future book() async {
     final FirebaseUser user = await auth.currentUser();
     users['seat$selectedCard'] = user.email;
 
@@ -411,8 +410,6 @@ All the functions used in this page
         'seat$selectedCard': true,
       }, merge: true);
       //users.clear();
-
-      print("success!");
     }).then(
       (_) {
         Firestore.instance
@@ -436,8 +433,6 @@ All the functions used in this page
                 isSeatEnabled = true;
               });
             });
-          } else {
-            print('nothing to do i guess');
           }
         }).catchError((e) => print("error fetching data: $e"));
       },
@@ -466,43 +461,8 @@ All the functions used in this page
 
     Widget titleSection = Container(
       padding: const EdgeInsets.all(0),
-      child: Row(
-          /*  children: [
-          Expanded(
-            /*1*/
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                /*2*/
-                Container(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Text(
-                      'Institute for Advanced and Smart Digital Opportunities (IASDO)',
-                      style: GoogleFonts.nunito()),
-                ),
-                Text(
-                  'UUM, Kedah',
-                  style: TextStyle(
-                    color: Colors.grey[500],
-                  ),
-                ),
-
-                /* RaisedButton(
-                    color: Colors.blueAccent,
-                    onPressed: () => updatedata(),
-                    child: new Text("Book"),
-                    animationDuration: Duration(seconds: 2),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: new BorderRadius.circular(18.0),
-                        side: BorderSide(color: Colors.white10))) */
-              ],
-            ),
-          ),
-        ], */
-          ),
+      child: Row(),
     );
-
-    //Color color = Theme.of(context).primaryColor;
 
     Widget textSection = Container(
       margin: EdgeInsets.only(left: 10, top: 25, right: 10, bottom: 25),
@@ -578,7 +538,7 @@ All the functions used in this page
                           ),
                           children: [
                         TextSpan(
-                          text: '${distance2} Km',
+                          text: '$distance2 Km',
                           style: GoogleFonts.nunito(
                             textStyle: TextStyle(
                               fontWeight: FontWeight.w900,
@@ -1068,8 +1028,7 @@ All the functions used in this page
                                                               Text('Cancel')),
                                                       FlatButton(
                                                           onPressed: () {
-                                                            updatedata()
-                                                                .then((_) {
+                                                            book().then((_) {
                                                               Navigator.of(
                                                                       context,
                                                                       rootNavigator:
@@ -1144,27 +1103,6 @@ All the functions used in this page
           ),
         ),
       ),
-    );
-  }
-
-  Column _buildButtonColumn(Color color, IconData icon, String label) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(icon, color: color),
-        Container(
-          margin: const EdgeInsets.only(top: 8),
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w400,
-              color: color,
-            ),
-          ),
-        ),
-      ],
     );
   }
 

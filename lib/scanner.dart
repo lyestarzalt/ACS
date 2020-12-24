@@ -1,5 +1,4 @@
 import 'dart:async';
-//import 'dart:html';
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +6,6 @@ import 'package:qrscan/qrscan.dart' as scanner;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:intl/intl.dart';
 
 class Scanner extends StatefulWidget {
   @override
@@ -22,9 +20,9 @@ class _ScannerState extends State<Scanner> {
     countDocuments();
     getList();
     super.initState();
-    test();
   }
 
+  var booked;
   var bookings = List();
   var days;
   var numberofbookings = 0;
@@ -32,21 +30,10 @@ class _ScannerState extends State<Scanner> {
   Uint8List bytes = Uint8List(200);
   var userID;
   List<DocumentSnapshot> myDocCount;
-  var anis;
-
   String date;
-
-  test() {
-    var date = DateTime.parse('${DateTime.now()}');
-    var formattedDate = "${date.day}-${date.month}-${date.year}";
-    var chosenday = formattedDate.toString();
-    print(chosenday);
-  }
-
   String checkin = 'Welcome aboard';
   String checkout = 'Hope to see you again';
 
-  //!////////////////////////////////
   Future _scan() async {
     final FirebaseUser user = await auth.currentUser();
     userID = user.uid;
@@ -57,9 +44,6 @@ class _ScannerState extends State<Scanner> {
     var date = DateTime.parse('${DateTime.now()}');
     var formattedDate = "${date.day}-${date.month}-${date.year}";
     var chosenday = formattedDate.toString();
-    print(
-        'today issssssssssssssssssssssssssssssssssssssssssssss $formattedDate');
-
     final db = Firestore.instance;
     DocumentSnapshot document = await db
         .collection('users')
@@ -67,7 +51,6 @@ class _ScannerState extends State<Scanner> {
         .collection('Bookings')
         .document(chosenday)
         .get();
-    print('yo this is the empty ${document.data}');
 
     if (barcode == checkout && document.data != null) {
       final db = Firestore.instance;
@@ -79,7 +62,6 @@ class _ScannerState extends State<Scanner> {
           .get();
       Map<String, dynamic> documentData =
           document.data; //if it is a single document
-      print('this is the documet $documentData');
       Firestore.instance
           .collection('bookings')
           .document(chosenday)
@@ -91,19 +73,13 @@ class _ScannerState extends State<Scanner> {
             .collection('Bookings')
             .document(chosenday)
             .delete();
-
-        //users.clear();
-
-        print("success!");
       }).then((_) async {
         await Firestore.instance
             .collection("Check-Out")
             .document(chosenday)
             .setData({
           'Space': {user.email: FieldValue.serverTimestamp()},
-        }, merge: true).then((_) {
-          print("success!");
-        });
+        }, merge: true).then((_) {});
       }).then((_) {
         Scaffold.of(context).showSnackBar(
             new SnackBar(content: new Text('Hope to see you again!')));
@@ -113,23 +89,23 @@ class _ScannerState extends State<Scanner> {
           .collection("Check-In")
           .document(chosenday)
           .setData({
-        'Space': {user.email: FieldValue.serverTimestamp()},
-      }, merge: true).then((_) {
-        print("success!");
-      }).then((_) {
-        Scaffold.of(context)
-            .showSnackBar(new SnackBar(content: new Text('welcome aboard!')));
-      });
+            'Space': {user.email: FieldValue.serverTimestamp()},
+          }, merge: true)
+          .then((_) {})
+          .then((_) {
+            Scaffold.of(context).showSnackBar(
+                new SnackBar(content: new Text('welcome aboard!')));
+          });
     } else {
       Scaffold.of(context)
           .showSnackBar(new SnackBar(content: new Text('Error')));
     }
   }
 
-//!////////////////////
   void countDocuments() async {
     final FirebaseUser user = await auth.currentUser();
     userID = user.uid;
+    // ignore: unused_local_variable
     QuerySnapshot _myDoc = await Firestore.instance
         .collection('users')
         .document(user.uid)
@@ -137,10 +113,8 @@ class _ScannerState extends State<Scanner> {
         .getDocuments()
         .then((event) {
       if (event.documents.isNotEmpty) {
-        myDocCount = event.documents; // Count of Documents in Collection
-        // print('hey this is the first $myDocCount');
+        myDocCount = event.documents;
         event.documents.forEach((doc) {
-          //  print('this is dates you booked ${doc.documentID}');
           doc.documentID;
         });
 
@@ -180,7 +154,6 @@ class _ScannerState extends State<Scanner> {
                     .get();
                 Map<String, dynamic> documentData =
                     document.data; //if it is a single document
-                print('this is the documet $documentData');
                 Firestore.instance
                     .collection('bookings')
                     .document(item)
@@ -192,18 +165,7 @@ class _ScannerState extends State<Scanner> {
                       .collection('Bookings')
                       .document(item)
                       .delete();
-
-                  //users.clear();
-
-                  print("success!");
                 });
-/* 
-                     .setData({
-        documentData
-      }, merge: true); */
-
-                //////////////////////////////////!
-                print(documentData);
                 Navigator.of(context).pop();
               },
             ),
@@ -219,16 +181,6 @@ class _ScannerState extends State<Scanner> {
     );
   }
 
-  Future deleteBooking() async {
-    final FirebaseUser user = await auth.currentUser();
-
-    final bookings = Firestore.instance
-        .collection('users')
-        .document(user.uid)
-        .collection('Bookings')
-        .document();
-  }
-
   Future getList() async {
     final FirebaseUser user = await auth.currentUser();
 
@@ -239,16 +191,9 @@ class _ScannerState extends State<Scanner> {
 
     bookings.getDocuments().then((snapshot) {
       snapshot.documents.forEach((doc) {
-        anis = doc.documentID;
+        booked = doc.documentID;
       });
     });
-  }
-
-  Widget _buildList(BuildContext context, DocumentSnapshot document) {
-    return ListTile(
-      title: Text(document['title']),
-      subtitle: Text(document['body']),
-    );
   }
 
   @override
@@ -325,7 +270,6 @@ class _ScannerState extends State<Scanner> {
                 );
               } else if (snapshot.data == null ||
                   snapshot.data.documents.length == 0) {
-                print('amos');
                 return Center(child: Text('No Bookings yet¯\_(ツ)_/¯'));
               } else {
                 return Center(child: CircularProgressIndicator());
@@ -335,5 +279,3 @@ class _ScannerState extends State<Scanner> {
         ));
   }
 }
-
-//() =>{getListViewItems(doc.documentID)},

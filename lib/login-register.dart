@@ -319,6 +319,7 @@ class _LoginRegisterState extends State<LoginRegister> {
                   SingleChildScrollView(
                       child: Form(
                     key: _formKey,
+                    // ignore: deprecated_member_use
                     autovalidate: _autoValidate,
                     child: Column(
                       children: <Widget>[
@@ -544,6 +545,7 @@ class _LoginRegisterState extends State<LoginRegister> {
                       ),
                     ]),
                     key: _formKey,
+                    // ignore: deprecated_member_use
                     autovalidate: _autoValidate,
                   )),
                 ],

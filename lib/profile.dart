@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -10,7 +9,6 @@ import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path/path.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'login-register.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -27,10 +25,15 @@ class MapScreenState extends State<ProfilePage>
   File _image;
   bool _status = true;
   final FocusNode myFocusNode = FocusNode();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   FirebaseUser user;
   final firestoreInstance = Firestore.instance;
   bool loading = false;
+
+  bool isFieldshown = false;
+  String url2;
+  String _username;
+  String _userphone;
+  final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
   final nameController = new TextEditingController();
   final mobileController = new TextEditingController();
@@ -44,18 +47,15 @@ class MapScreenState extends State<ProfilePage>
     // initUser();
   }
 
-//Get Image here from the device/////////////////////////////////////////////////
   Future getImage() async {
     final FirebaseUser user = await auth.currentUser();
 
     var image = await ImagePicker.pickImage(source: ImageSource.gallery);
 
     if (image == null) {
-      print("amos");
     } else {
       setState(() {
         _image = image;
-        print('Image Path $_image');
       });
 
       String fileName = basename(_image.path);
@@ -66,7 +66,7 @@ class MapScreenState extends State<ProfilePage>
       StorageUploadTask uploadTask = firebaseStorageRef.putFile(_image);
       StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
       taskSnapshot.ref.getDownloadURL();
-//
+
       final url = await (await uploadTask.onComplete).ref.getDownloadURL();
 
       Firestore.instance
@@ -77,48 +77,8 @@ class MapScreenState extends State<ProfilePage>
           url2 = url;
         });
       });
-      /* UserUpdateInfo updateUser = UserUpdateInfo();
-    updateUser.photoUrl = url; */
-      print('this is the url $url');
     }
   }
-
-//
-
-//uplaod//////////////////////////////////////////////////////////////////////////
-/*   Future<String> uploadImageToFirebase(BuildContext context) async {
-    final FirebaseUser user = await auth.currentUser();
-
-    String fileName = basename(_image.path);
-    StorageReference firebaseStorageRef =
-        FirebaseStorage.instance.ref().child('uploads/${user?.uid}/$fileName');
-    StorageUploadTask uploadTask = firebaseStorageRef.putFile(_image);
-    StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
-    taskSnapshot.ref.getDownloadURL();
-    print('');
-//
-///////////////////////update url to users
-    /* final url = await (await uploadTask.onComplete).ref.getDownloadURL();
-    Firestore.instance
-        .collection('users')
-        .document(uid)
-        .updateData({'ProfilePicture': url}); */
-
-//
-
-    final url = await (await uploadTask.onComplete).ref.getDownloadURL();
-    UserUpdateInfo updateUser = UserUpdateInfo();
-    updateUser.photoUrl = url;
-    print('this is the url $url');
-    print('this is the profilurl  ${user.photoUrl}');
-  }
- */
-////////////////////////////////////////
-  bool isFieldshown = false;
-  String url2;
-  String _username;
-  String _userphone;
-  final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
   Future<void> _getUserInfo() async {
     final FirebaseUser user = await auth.currentUser();
@@ -136,7 +96,6 @@ class MapScreenState extends State<ProfilePage>
     }
   }
 
-/////////////////////////////////////////
   Future<void> _updatedata() async {
     final FirebaseUser user = await auth.currentUser();
 
@@ -146,8 +105,6 @@ class MapScreenState extends State<ProfilePage>
         {'Phone': mobileController.text, 'displayName': nameController.text});
   }
 
-/////////////////////
-  ///
   showfield() {
     setState(() {
       isFieldshown = true;
@@ -162,16 +119,6 @@ class MapScreenState extends State<ProfilePage>
 
   _signOut() async {
     await firebaseAuth.signOut().whenComplete(() => null);
-
-    /*  .then((_) {
-      Navigator.push(
-        this.context,
-        MaterialPageRoute(
-          builder: (context) => LoginRegister(),
-          fullscreenDialog: true,
-        ),
-      );
-    });  */
   }
 
   Widget build(BuildContext context) {
@@ -669,26 +616,6 @@ class MapScreenState extends State<ProfilePage>
         setState(() {
           _status = false;
           isFieldshown = true;
-        });
-      },
-    );
-  }
-
-  Widget _disposeEditIcon() {
-    return new GestureDetector(
-      child: new CircleAvatar(
-        backgroundColor: Colors.red,
-        radius: 14.0,
-        child: new Icon(
-          Icons.edit,
-          color: Colors.white,
-          size: 16.0,
-        ),
-      ),
-      onTap: () {
-        setState(() {
-          _status = true;
-          isFieldshown = false;
         });
       },
     );

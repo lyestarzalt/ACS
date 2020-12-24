@@ -39,3 +39,8 @@ app.*.symbols
 
 # Obfuscation related
 app.*.map.json
+
+# Google Services (ex. APIs and Firebase)
+google-services.json
+GoogleService-Info.plist
+AndroidManifest.xml

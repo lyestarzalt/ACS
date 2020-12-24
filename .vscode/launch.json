@@ -9,7 +9,7 @@
             "name": "ACS",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "profile"
+            "flutterMode": "debug"
         }
     ]
 }
