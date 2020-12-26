@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
+// ignore: must_be_immutable
 class More extends StatelessWidget {
   String title, image;
   double rating;

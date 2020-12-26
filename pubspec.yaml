@@ -29,7 +29,7 @@ dependencies:
   firebase_storage:
   qrscan: ^0.2.17
   convex_bottom_bar: ^2.5.1
-  image_picker: ^0.5.3+1
+  image_picker: ^0.6.7+17
   qr_flutter: ^3.1.0
   google_maps_flutter: ^1.0.5
   geolocator: ^6.1.4

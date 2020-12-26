@@ -47,6 +47,75 @@ class MapScreenState extends State<ProfilePage>
     // initUser();
   }
 
+  void _showPicker(context) {
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext bc) {
+          return SafeArea(
+            child: Container(
+              color: Colors.white,
+              child: new Wrap(
+                children: <Widget>[
+                  new ListTile(
+                      leading: new Icon(Icons.photo_library),
+                      title: new Text('Photo Library'),
+                      onTap: () {
+                        getImage();
+                        Navigator.of(context).pop();
+                      }),
+                  new ListTile(
+                    leading: new Icon(Icons.photo_camera),
+                    title: new Text('Camera'),
+                    onTap: () {
+                      imgFromCamera();
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
+
+//get image from the camera
+  Future imgFromCamera() async {
+    final FirebaseUser user = await auth.currentUser();
+
+    File image = await ImagePicker.pickImage(
+      source: ImageSource.camera,
+    );
+    if (image == null) {
+    } else {
+      setState(() {
+        _image = image;
+      });
+
+      String fileName = basename(_image.path);
+
+      StorageReference firebaseStorageRef = FirebaseStorage.instance
+          .ref()
+          .child('uploads/${user?.uid}/$fileName');
+      StorageUploadTask uploadTask = firebaseStorageRef.putFile(_image);
+      StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
+      taskSnapshot.ref.getDownloadURL();
+
+      final url = await (await uploadTask.onComplete).ref.getDownloadURL();
+
+      Firestore.instance
+          .collection('users')
+          .document(user.uid)
+          .updateData({'PhotoUrl': url}).then((_) {
+        setState(() {
+          url2 = url;
+        });
+
+      });
+    }
+  }
+
+// get Image from gallery
   Future getImage() async {
     final FirebaseUser user = await auth.currentUser();
 
@@ -192,9 +261,8 @@ class MapScreenState extends State<ProfilePage>
                                     backgroundColor: Colors.red,
                                     radius: 25.0,
                                     child: new IconButton(
-                                      icon: Icon(Icons.camera_alt_rounded),
-                                      onPressed: getImage,
-                                    ),
+                                        icon: Icon(Icons.camera_alt_rounded),
+                                        onPressed: () => _showPicker(context)),
                                   )
                                 ],
                               )),
@@ -503,10 +571,10 @@ class MapScreenState extends State<ProfilePage>
                                       context: context,
                                       children: [
                                         Text(
-                                            'Hey There!\nThank for using UNA, if you facing any issues please email us.')
+                                            'Hey There!\nThank you for using UNA, if you facing any issues please email us.')
                                       ],
                                       applicationName: 'UNA',
-                                      applicationVersion: '0.5.1',
+                                      applicationVersion: '0.5.2',
                                       applicationIcon: Image.asset(
                                         'assets/logo.png',
                                         width: 30,

@@ -141,10 +141,9 @@ All the functions used in this page
     double startLongitude = position.longitude;
     double distanceInMeters = Geolocator.distanceBetween(
         startLatitude, startLongitude, 6.467859, 100.507634);
-
+    distance = distanceInMeters.round();
     if (mounted) {
       setState(() {
-        distance = distanceInMeters.round();
         distance2 = distance / 1000;
       });
     }
@@ -469,6 +468,7 @@ All the functions used in this page
       height: 200,
       child: Stack(fit: StackFit.loose, children: [
         GoogleMap(
+          myLocationEnabled: true,
           padding: const EdgeInsets.all(50),
           mapType: MapType.hybrid,
           zoomControlsEnabled: false,
